@@ -1,8 +1,6 @@
-# Use root/example as user/password credentials
 version: '3.1'
 
 services:
-
   mongo:
     image: mongo
     restart: always
@@ -13,5 +11,6 @@ services:
       - 80:27017
     volumes:
       - mongo-data:/data/db
+
 volumes:
   mongo-data:
