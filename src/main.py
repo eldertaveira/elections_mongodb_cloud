@@ -37,12 +37,15 @@ def load_data_into_mongodb():
     create_mongodb_database_and_collection(data_lake_connection_string, database_name, collection_name)
     create_mongodb_database_and_collection(data_warehouse_connection_string, database_name, collection_name)
 
+    create_user_owner_for_database(data_lake_connection_string, database_name, "dba", "pandas")
+    create_user_owner_for_database(data_warehouse_connection_string, database_name, "dba", "pandas")
+
     csv_file_path = get_path_for_csv_file()
     check_if_extraction_folder_is_created(EXTRACTION_FOLDER_PATH)
 
     download_csv_if_not_exists(csv_file_path)
 
-    host = "34.28.35.28"
+    host = "localhost"
     port = 80
     username = 'dba'
     password = 'pandas'
@@ -86,6 +89,22 @@ def create_mongodb_database_and_collection(url: str, database_name: str, collect
     except Exception:
         print(f"Failed to create database {database_name} or collection '{collection_name}'. Exception:")
         traceback.print_exc()
+
+def create_user_owner_for_database(url: str, database_name: str, username: str, password: str):
+    client = pymongo.MongoClient(url)
+    database = client[database_name]
+
+    usernames = []
+
+    usernames_cursor = client.admin.system.users.find()
+
+    for cursor in usernames_cursor:
+        usernames.append(cursor['user'])
+
+    if username in usernames:
+        return
+
+    database.command("createUser", username, pwd=password, roles=[{"role": "dbOwner", "db": database_name }])
 
 
 def get_path_for_csv_file():
