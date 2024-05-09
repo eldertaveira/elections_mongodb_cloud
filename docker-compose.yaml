@@ -1,16 +1,28 @@
-version: '3.1'
-
 services:
-  mongo:
+  data_lake:
+    container_name: mongo_data_lake
     image: mongo
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
     ports:
-      - 80:27017
+      - 443:27017
     volumes:
-      - mongo-data:/data/db
+      - data_lake:/data/db
+
+  data_warehouse:
+      container_name: mongo_data_warehouse
+      image: mongo
+      restart: always
+      environment:
+        MONGO_INITDB_ROOT_USERNAME: root
+        MONGO_INITDB_ROOT_PASSWORD: example
+      ports:
+        - 80:27017
+      volumes:
+        - data_warehouse:/data/db
 
 volumes:
-  mongo-data:
+  data_lake:
+  data_warehouse:
