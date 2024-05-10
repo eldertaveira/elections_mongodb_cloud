@@ -134,30 +134,35 @@ def check_if_extraction_folder_is_created(folder_path: str):
 
 
 def download_csv_if_not_exists(csv_path: str):
+   work_dir = EXTRACTION_FOLDER_PATH
+   destination_file = "votacao_candidato_munzona_2022.zip"
+   url = 'https://cdn.tse.jus.br/estatistica/sead/odsele/votacao_candidato_munzona/votacao_candidato_munzona_2022.zip'
+   destination_zip_path = os.path.join(work_dir, destination_file)
+
+   zip_already_downloaded = os.path.exists(destination_zip_path)
+
+   if not zip_already_downloaded:
+       download_zip_file(url, destination_zip_path)
+
    file_is_extracted = os.path.exists(csv_path)
 
    if not file_is_extracted:
-        work_dir = EXTRACTION_FOLDER_PATH
-        destination_file = "votacao_candidato_munzona_2022.zip"
-        url = 'https://cdn.tse.jus.br/estatistica/sead/odsele/votacao_candidato_munzona/votacao_candidato_munzona_2022.zip'
-        destination_zip_path = os.path.join(work_dir, destination_file)
-
-        download_zip_file(url, destination_zip_path)
+        source_csv_filename = 'votacao_candidato_munzona_2022_BRASIL.csv'
 
         csv_extracted_path = os.path.join(work_dir, 'extracted')
 
-        unzip_file(destination_zip_path, csv_extracted_path)
+        unzip_file(source_csv_filename, destination_zip_path, csv_extracted_path)
 
 
 def download_zip_file(url: str, destination_path: str):
     request.urlretrieve(url, destination_path)
 
 
-def unzip_file(source_path: str, extract_path):
+def unzip_file(file: str, source_path: str, extract_path):
     from zipfile import ZipFile
 
     with ZipFile(source_path, 'r') as zip_file:
-        zip_file.extract(source_path, extract_path)
+        zip_file.extract(file, extract_path)
 
 
 class ConnectionOptions(TypedDict):
