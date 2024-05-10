@@ -34,14 +34,20 @@ def load_data_into_mongodb():
         'database': None
     })
 
+    print(" 🛢️Criando Usuários e Collections...")
+
     create_mongodb_database_and_collection(data_lake_connection_string, database_name, collection_name)
     create_mongodb_database_and_collection(data_warehouse_connection_string, database_name, collection_name)
 
     create_user_owner_for_database(data_lake_connection_string, database_name, "dba", "pandas")
     create_user_owner_for_database(data_warehouse_connection_string, database_name, "dba", "pandas")
 
+    print(" 📂 Criando pasta...")
+
     csv_file_path = get_path_for_csv_file()
     check_if_extraction_folder_is_created(EXTRACTION_FOLDER_PATH)
+
+    print(" ⌛ Baixando arquivo .zip e extraindo .csv...")
 
     download_csv_if_not_exists(csv_file_path)
 
@@ -65,7 +71,13 @@ def load_data_into_mongodb():
 
     df: DataFrame = spark_session.read.options(header="true", delimiter=";", encoding="ISO-8859-1", inferSchema=True).csv(csv_file_path)
 
+    print("✍ 🖋️ Inserindo dados no MongoDB...")
+
     df.write.format("com.mongodb.spark.sql.DefaultSource").mode("append").save()
+
+    print("✍ ✅ Dados escritos no MongoD!!")
+
+    print(" 🧹 Limpando...")
 
     spark_session.stop()
 
