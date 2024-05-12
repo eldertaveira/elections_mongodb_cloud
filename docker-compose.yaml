@@ -26,3 +26,27 @@ services:
 volumes:
   data_lake:
   data_warehouse:
+
+# Virtual Machine
+# version: '3.1'
+
+# services:
+#   mongo:
+#     image: mongo
+#     restart: always
+#     enviroment:
+#       MONGO_INITDB_ROOT_USERNAME: root
+#       MONGO_INITDB_ROOT_PASSWORD: example
+#     ports:
+#       - 80:27017
+#     volumes:
+#       - mongo-data:/data/db
+
+#   metabase:
+#     image: metabase/metabse:latest
+#     restart: always
+#     ports:
+#       - 443:3000
+
+# volumes:
+#   mongo-data:
