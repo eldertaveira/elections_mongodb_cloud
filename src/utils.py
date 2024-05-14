@@ -6,80 +6,7 @@ from typing import TypedDict
 import pymongo
 import traceback
 
-EXTRACTION_FOLDER_PATH = './work/'
-
-def load_data_into_mongodb():
-    username = "root"
-    password = "example"
-    host = "localhost"
-
-    database_name = "elections"
-    collection_name = "general_elections_2022"
-
-    data_lake_connection_string = create_connection_string({
-        'username': username,
-        'password': password,
-        'host': host,
-        'port': 80,
-        'collection': None,
-        'database': None
-    })
-
-    data_warehouse_connection_string = create_connection_string({
-        'username': username,
-        'password': password,
-        'host': host,
-        'port': 443,
-        'collection': None,
-        'database': None
-    })
-
-    print(" 🛢️Criando Usuários e Collections...")
-
-    create_mongodb_database_and_collection(data_lake_connection_string, database_name, collection_name)
-    create_mongodb_database_and_collection(data_warehouse_connection_string, database_name, collection_name)
-
-    create_user_owner_for_database(data_lake_connection_string, database_name, "dba", "pandas")
-    create_user_owner_for_database(data_warehouse_connection_string, database_name, "dba", "pandas")
-
-    print(" 📂 Criando pasta...")
-
-    csv_file_path = get_path_for_csv_file()
-    check_if_extraction_folder_is_created(EXTRACTION_FOLDER_PATH)
-
-    print(" ⌛ Baixando arquivo .zip e extraindo .csv...")
-
-    download_csv_if_not_exists(csv_file_path)
-
-    host = "localhost"
-    port = 80
-    username = 'dba'
-    password = 'pandas'
-    database = 'elections'
-    collection = 'general_elections_2022'
-
-    uri = create_connection_string({
-        'host': host,
-        'port': port,
-        'username': username,
-        'password': password,
-        'database': database,
-        'collection': collection
-    })
-
-    spark_session = SparkSession.builder.appName('spark').config("spark.mongodb.output.uri", uri).config("spark.jars.packages", "org.mongodb.spark:mongo-spark-connector_2.12:3.0.0").getOrCreate()
-
-    df: DataFrame = spark_session.read.options(header="true", delimiter=";", encoding="ISO-8859-1", inferSchema=True).csv(csv_file_path)
-
-    print("✍ 🖋️ Inserindo dados no MongoDB...")
-
-    df.write.format("com.mongodb.spark.sql.DefaultSource").mode("append").save()
-
-    print("✍ ✅ Dados escritos no MongoD!!")
-
-    print(" 🧹 Limpando...")
-
-    spark_session.stop()
+EXTRACTION_FOLDER_PATH = '../work'
 
 def create_mongodb_database_and_collection(url: str, database_name: str, collection_name: str):
     try:
@@ -178,7 +105,7 @@ def create_connection_string(options: ConnectionOptions):
     password = options['password']
     host = options['host']
     port = options['port']
-    database = options['collection']
+    database = options['database']
     collection = options['collection']
 
     if database == None and collection == None:
@@ -189,5 +116,3 @@ def create_connection_string(options: ConnectionOptions):
 
     return connection_string
 
-
-load_data_into_mongodb()
